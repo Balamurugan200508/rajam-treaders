@@ -99,7 +99,7 @@ export default function App() {
       {(slide === 3 || slide === 4) && (
         <div 
           className="fixed inset-0 -z-20 w-screen h-screen bg-cover bg-center transition-opacity duration-1000"
-          style={{ backgroundImage: `url('/Rajam Traders.png')` }}
+          style={{ backgroundImage: `url('/background.png')` }}
         />
       )}
       
@@ -107,7 +107,7 @@ export default function App() {
       {slide === 5 && (
         <div 
           className="fixed inset-0 -z-15 w-screen h-screen bg-cover bg-center filter blur-md scale-105"
-          style={{ backgroundImage: `url('/Rajam Traders.png')` }}
+          style={{ backgroundImage: `url('/background.png')` }}
         />
       )}
       
