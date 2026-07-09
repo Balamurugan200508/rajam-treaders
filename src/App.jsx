@@ -26,10 +26,6 @@ export default function App() {
   const [errors, setErrors] = useState({});
   const [scrollProgress, setScrollProgress] = useState(0);
   
-  // Track scroll milestones: 
-  // 0: Welcome, 1: Name unlocked (100vh), 2: Contact unlocked (200vh), 3: Appointment unlocked (300vh), 4: Solution unlocked (400vh)
-  const [maxUnlockedStep, setMaxUnlockedStep] = useState(0);
-
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -112,7 +108,6 @@ export default function App() {
       const scrollY = window.scrollY;
       const maxTrackHeight = 4 * window.innerHeight;
       
-      // Calculate progress relative to the 4-viewport full track
       const scrollPercent = Math.min(1.0, scrollY / maxTrackHeight);
       setScrollProgress(scrollPercent);
       
@@ -156,7 +151,6 @@ export default function App() {
     });
     setErrors({});
     setScrollProgress(0);
-    setMaxUnlockedStep(0);
     currentFrameIndexRef.current = 1;
     
     const firstImg = imagesRef.current[1];
@@ -176,9 +170,8 @@ export default function App() {
   const handleStartForm = () => {
     setSlide(5);
     setScrollProgress(0);
-    setMaxUnlockedStep(1); // Unlocks Step 1 scroll space (up to 100vh)
     setTimeout(() => {
-      scrollToPercent(0.25); // Scrolls to 100vh (25% of 400vh)
+      scrollToPercent(0.25); // Scrolls to Step 1 (100vh)
     }, 100);
   };
 
@@ -192,10 +185,7 @@ export default function App() {
       return;
     }
     setErrors({});
-    setMaxUnlockedStep(2); // Unlocks Step 2 scroll space (up to 200vh)
-    setTimeout(() => {
-      scrollToPercent(0.50); // Scrolls to 200vh (50% of 400vh)
-    }, 100);
+    scrollToPercent(0.50); // Scrolls to Step 2 Contact (200vh)
   };
 
   const handleContinueContact = () => {
@@ -214,17 +204,11 @@ export default function App() {
       return;
     }
     setErrors({});
-    setMaxUnlockedStep(3); // Unlocks Step 3 scroll space (up to 300vh)
-    setTimeout(() => {
-      scrollToPercent(0.75); // Scrolls to 300vh (75% of 400vh)
-    }, 100);
+    scrollToPercent(0.75); // Scrolls to Step 3 Appointment (300vh)
   };
 
   const handleContinueAppointment = () => {
-    setMaxUnlockedStep(4); // Unlocks Step 4 scroll space (up to 400vh)
-    setTimeout(() => {
-      scrollToPercent(1.00); // Scrolls to 400vh (100% of 400vh)
-    }, 100);
+    scrollToPercent(1.00); // Scrolls to Step 4 Requirement (400vh)
   };
 
   const handleSubmit = () => {
@@ -340,7 +324,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Slide 5: Scroll-Gated reveals centered in viewport */}
+        {/* Slide 5: Scroll reveals centered in viewport */}
         {slide === 5 && (
           <div className="fixed inset-0 z-30 flex items-center justify-center px-4 pointer-events-none">
             <div className="relative w-full max-w-md h-full flex items-center justify-center">
@@ -353,7 +337,7 @@ export default function App() {
                   errors={errors} 
                   onContinue={handleContinueName} 
                   t={t}
-                  isUnlocked={maxUnlockedStep >= 1}
+                  isUnlocked={true}
                 />
               </div>
               
@@ -365,7 +349,7 @@ export default function App() {
                   errors={errors} 
                   onContinue={handleContinueContact} 
                   t={t}
-                  isUnlocked={maxUnlockedStep >= 2}
+                  isUnlocked={true}
                 />
               </div>
               
@@ -376,7 +360,7 @@ export default function App() {
                   updateData={updateFormData} 
                   onContinue={handleContinueAppointment} 
                   t={t}
-                  isUnlocked={maxUnlockedStep >= 3}
+                  isUnlocked={true}
                 />
               </div>
               
@@ -387,7 +371,7 @@ export default function App() {
                   updateData={updateFormData} 
                   onSubmit={handleSubmit} 
                   t={t}
-                  isUnlocked={maxUnlockedStep >= 4}
+                  isUnlocked={true}
                 />
               </div>
 
@@ -395,12 +379,9 @@ export default function App() {
           </div>
         )}
 
-        {/* Dynamic spacer that extends page scroll height ONLY as steps are unlocked */}
+        {/* Global scroll spacer (constant 500vh to enable free scrolling anytime) */}
         {slide === 5 && (
-          <div 
-            style={{ height: `${maxUnlockedStep * 100}vh` }} 
-            className="w-full pointer-events-none transition-[height] duration-500 ease-out" 
-          />
+          <div className="h-[500vh] w-full pointer-events-none" />
         )}
 
         {slide === 9 && <SubmittingLoader onComplete={() => setSlide(10)} t={t} />}
