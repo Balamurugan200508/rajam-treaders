@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import LangToggle from './components/LangToggle';
 import { translations } from './translations';
 import { 
   LoadingScreen, 
   WelcomeSection, 
-  StepNameSection, 
-  StepContactSection, 
-  StepAppointmentSection, 
-  StepSolutionSection, 
+  UnifiedForm,
   SubmittingLoader, 
   SuccessScreen, 
   FinalConfirmation 
@@ -18,14 +15,14 @@ export default function App() {
   const [lang, setLang] = useState('en');
   // Slide 3: Loading Screen
   // Slide 4: Welcome Banner
-  // Slide 5: Scroll-Driven Form Layout
+  // Slide 4.5: Fullscreen Video Intro
+  // Slide 5: Unified Form Page
   // Slide 9: Submitting Loader
   // Slide 10: Success Screen
   // Slide 11: Final Confirmation
   const [slide, setSlide] = useState(3);
   const [errors, setErrors] = useState({});
-  const [scrollProgress, setScrollProgress] = useState(0);
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -36,93 +33,6 @@ export default function App() {
     time: '',
     solution: 'on-grid',
   });
-
-  const imagesRef = useRef([]);
-  const canvasRef = useRef(null);
-  const currentFrameIndexRef = useRef(1);
-
-  // Helper to draw image onto fixed cover canvas
-  const drawImageOnCanvas = (img) => {
-    const canvas = canvasRef.current;
-    if (!canvas || !img) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    const imgWidth = img.naturalWidth || img.width;
-    const imgHeight = img.naturalHeight || img.height;
-
-    if (imgWidth === 0 || imgHeight === 0) return;
-
-    const ratio = Math.max(canvasWidth / imgWidth, canvasHeight / imgHeight);
-    const newWidth = imgWidth * ratio;
-    const newHeight = imgHeight * ratio;
-    const x = (canvasWidth - newWidth) / 2;
-    const y = (canvasHeight - newHeight) / 2;
-
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(img, x, y, newWidth, newHeight);
-  };
-
-  // Prefetch frames on startup
-  useEffect(() => {
-    const loadedImages = [];
-    for (let i = 1; i <= 150; i++) {
-      const img = new Image();
-      img.src = `/frames/ezgif-frame-${String(i).padStart(3, '0')}.png`;
-      img.onload = () => {
-        if (i === 1) {
-          drawImageOnCanvas(img);
-        }
-      };
-      loadedImages[i] = img;
-    }
-    imagesRef.current = loadedImages;
-  }, []);
-
-  // Handle Resize bounds
-  useEffect(() => {
-    const handleResize = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      
-      const currentImg = imagesRef.current[currentFrameIndexRef.current];
-      if (currentImg) {
-        drawImageOnCanvas(currentImg);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Track scroll position to advance frames based on absolute 4-viewport limit
-  useEffect(() => {
-    const handleScroll = () => {
-      if (slide !== 5) return;
-      
-      const scrollY = window.scrollY;
-      const maxTrackHeight = 4 * window.innerHeight;
-      
-      const scrollPercent = Math.min(1.0, scrollY / maxTrackHeight);
-      setScrollProgress(scrollPercent);
-      
-      const frameIndex = Math.min(150, Math.max(1, Math.floor(scrollPercent * 149) + 1));
-      currentFrameIndexRef.current = frameIndex;
-
-      const img = imagesRef.current[frameIndex];
-      if (img && (img.complete || img.naturalWidth > 0)) {
-        drawImageOnCanvas(img);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [slide]);
 
   const updateFormData = (newData) => {
     setFormData(prev => ({ ...prev, ...newData }));
@@ -150,65 +60,12 @@ export default function App() {
       solution: 'on-grid',
     });
     setErrors({});
-    setScrollProgress(0);
-    currentFrameIndexRef.current = 1;
-    
-    const firstImg = imagesRef.current[1];
-    if (firstImg) {
-      drawImageOnCanvas(firstImg);
-    }
-    
     setSlide(4);
     window.scrollTo({ top: 0 });
   };
 
-  const scrollToPercent = (percent) => {
-    const maxTrackHeight = 4 * window.innerHeight;
-    window.scrollTo({ top: maxTrackHeight * percent, behavior: 'smooth' });
-  };
-
   const handleStartForm = () => {
-    setSlide(5);
-    setScrollProgress(0);
-    setTimeout(() => {
-      scrollToPercent(0.25); // Scrolls to Step 1 (100vh)
-    }, 100);
-  };
-
-  const handleContinueName = () => {
-    const newErrors = {};
-    if (!formData.firstName?.trim()) newErrors.firstName = t.validationFirstName;
-    if (!formData.lastName?.trim()) newErrors.lastName = t.validationLastName;
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    setErrors({});
-    scrollToPercent(0.50); // Scrolls to Step 2 Contact (200vh)
-  };
-
-  const handleContinueContact = () => {
-    const newErrors = {};
-    if (!formData.email?.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t.validationEmail;
-    }
-    if (!formData.mobile?.trim()) {
-      newErrors.mobile = t.validationMobile;
-    } else if (formData.mobile.replace(/\D/g, '').length < 8) {
-      newErrors.mobile = t.validationMobileFormat;
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    setErrors({});
-    scrollToPercent(0.75); // Scrolls to Step 3 Appointment (300vh)
-  };
-
-  const handleContinueAppointment = () => {
-    scrollToPercent(1.00); // Scrolls to Step 4 Requirement (400vh)
+    setSlide(4.5);
   };
 
   const handleSubmit = () => {
@@ -226,13 +83,7 @@ export default function App() {
 
     if (Object.keys(finalErrors).length > 0) {
       setErrors(finalErrors);
-      
-      const firstErrorField = Object.keys(finalErrors)[0];
-      if (firstErrorField === 'firstName' || firstErrorField === 'lastName') {
-        scrollToPercent(0.25);
-      } else {
-        scrollToPercent(0.50);
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -242,64 +93,29 @@ export default function App() {
 
   const t = translations[lang];
 
-  // Helper to calculate card style based on scroll progress (0.0 to 1.0)
-  const getCardStyle = (min, peak, max) => {
-    if (slide !== 5) return { display: 'none' };
-    
-    if (scrollProgress < min || scrollProgress > max) {
-      return { 
-        opacity: 0, 
-        transform: 'translateY(60px) scale(0.95)', 
-        pointerEvents: 'none',
-        position: 'absolute',
-        width: '100%',
-        maxWidth: '28rem',
-        transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
-      };
-    }
-    
-    let opacity = 0;
-    if (scrollProgress >= min && scrollProgress <= peak) {
-      opacity = (scrollProgress - min) / (peak - min);
-    } else if (scrollProgress > peak && scrollProgress <= max) {
-      if (max >= 0.99) {
-        opacity = 1;
-      } else {
-        opacity = 1 - (scrollProgress - peak) / (max - peak);
-      }
-    }
-    
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const progressOffset = scrollProgress - peak;
-    const translateY = progressOffset * (isMobile ? -90 : -180);
-    
-    return {
-      opacity: opacity,
-      transform: `translateY(${translateY}px) scale(${0.96 + opacity * 0.04})`,
-      pointerEvents: opacity > 0.25 ? 'auto' : 'none',
-      position: 'absolute',
-      width: '100%',
-      maxWidth: '28rem',
-      transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
-    };
-  };
-
   return (
     <div className="relative min-h-screen w-full flex flex-col justify-between overflow-x-hidden">
-      {/* High-Performance Canvas Scroll-Sequence Background */}
-      <canvas 
-        ref={canvasRef}
-        id="scroll-canvas"
-        className="fixed inset-0 -z-20 w-screen h-screen object-cover"
-      />
+      {/* Static background image for Welcome and Loading screens */}
+      {(slide === 3 || slide === 4) && (
+        <div 
+          className="fixed inset-0 -z-20 w-screen h-screen bg-cover bg-center transition-opacity duration-1000"
+          style={{ backgroundImage: `url('/Rajam Traders.png')` }}
+        />
+      )}
+      
+      {/* Blurred background image for Slide 5 */}
+      {slide === 5 && (
+        <div 
+          className="fixed inset-0 -z-15 w-screen h-screen bg-cover bg-center filter blur-md scale-105"
+          style={{ backgroundImage: `url('/Rajam Traders.png')` }}
+        />
+      )}
+      
       {/* Overlay for readable text */}
       <div className="fixed inset-0 -z-10 w-screen h-screen bg-black/35" />
 
-      {/* Language Toggle Selector */}
-      {slide !== 3 && <LangToggle currentLang={lang} setLang={setLang} />}
-
       {/* Header Bar */}
-      {slide !== 3 && (
+      {slide !== 3 && slide !== 4.5 && (
         <header className="w-full max-w-xl mx-auto px-6 py-6 flex items-center justify-between z-40 select-none">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -324,64 +140,30 @@ export default function App() {
           </div>
         )}
 
-        {/* Slide 5: Scroll reveals centered in viewport */}
-        {slide === 5 && (
-          <div className="fixed inset-0 z-30 flex items-center justify-center px-4 pointer-events-none">
-            <div className="relative w-full max-w-md h-full flex items-center justify-center">
-              
-              {/* Card 1: Name Section (Visible: 10% - 38%, Peak: 25% [100vh]) */}
-              <div style={getCardStyle(0.10, 0.25, 0.38)}>
-                <StepNameSection 
-                  data={formData} 
-                  updateData={updateFormData} 
-                  errors={errors} 
-                  onContinue={handleContinueName} 
-                  t={t}
-                  isUnlocked={true}
-                />
-              </div>
-              
-              {/* Card 2: Contact Section (Visible: 38% - 62%, Peak: 50% [200vh]) */}
-              <div style={getCardStyle(0.38, 0.50, 0.62)}>
-                <StepContactSection 
-                  data={formData} 
-                  updateData={updateFormData} 
-                  errors={errors} 
-                  onContinue={handleContinueContact} 
-                  t={t}
-                  isUnlocked={true}
-                />
-              </div>
-              
-              {/* Card 3: Appointment Section (Visible: 62% - 88%, Peak: 0.75 [300vh]) */}
-              <div style={getCardStyle(0.62, 0.75, 0.88)}>
-                <StepAppointmentSection 
-                  data={formData} 
-                  updateData={updateFormData} 
-                  onContinue={handleContinueAppointment} 
-                  t={t}
-                  isUnlocked={true}
-                />
-              </div>
-              
-              {/* Card 4: Solution Section (Visible: 88% - 100%, Peak: 1.00 [400vh]) */}
-              <div style={getCardStyle(0.88, 1.00, 1.0)}>
-                <StepSolutionSection 
-                  data={formData} 
-                  updateData={updateFormData} 
-                  onSubmit={handleSubmit} 
-                  t={t}
-                  isUnlocked={true}
-                />
-              </div>
-
-            </div>
+        {slide === 4.5 && (
+          <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+            <video 
+              src="/Solar_energy_company_hero_video_202607091040.mp4" 
+              autoPlay 
+              muted 
+              playsInline
+              onEnded={() => setSlide(5)}
+              className="w-full h-full object-cover"
+            />
           </div>
         )}
 
-        {/* Global scroll spacer (constant 500vh to enable free scrolling anytime) */}
+        {/* Slide 5: Single-page Unified Form layout */}
         {slide === 5 && (
-          <div className="h-[500vh] w-full pointer-events-none" />
+          <div className="w-full max-w-xl mx-auto py-8 z-30 relative animate-fade-in">
+            <UnifiedForm 
+              data={formData} 
+              updateData={updateFormData} 
+              errors={errors} 
+              onSubmit={handleSubmit} 
+              t={t}
+            />
+          </div>
         )}
 
         {slide === 9 && <SubmittingLoader onComplete={() => setSlide(10)} t={t} />}
@@ -390,7 +172,7 @@ export default function App() {
       </main>
 
       {/* Footer Info */}
-      {slide !== 3 && (
+      {slide !== 3 && slide !== 4.5 && (
         <footer className="w-full max-w-xl mx-auto px-6 py-6 text-center z-40 select-none">
           <p className="text-zinc-500 text-[10px] md:text-xs tracking-wider">
             &copy; {new Date().getFullYear()} Rajam Traders. All rights reserved. &bull; Thanjavur &bull; Chennai &bull; Trichy

@@ -435,3 +435,213 @@ export function FinalConfirmation({ onRestart, t }) {
     </div>
   );
 }
+
+// Unified Full Form Component
+export function UnifiedForm({ data, updateData, errors, onSubmit, t }) {
+  const options = [
+    { id: 'on-grid', label: t.onGrid, desc: 'Connected to the utility grid. Save on bills.' },
+    { id: 'off-grid', label: t.offGrid, desc: 'Complete independence with battery storage.' },
+    { id: 'hybrid', label: t.hybrid, desc: 'Best of both. Connected with battery backup.' },
+  ];
+
+  return (
+    <div className="w-full glass-panel p-6 md:p-8 rounded-3xl relative overflow-hidden transition-all duration-500">
+      <div className="absolute top-0 left-0 w-[4px] h-full bg-gradient-to-b from-emerald-500 to-teal-500"></div>
+      
+      <h3 className="text-xl md:text-2xl font-black text-white mb-6 tracking-wide pl-2 border-b border-zinc-800/60 pb-3 text-glow">
+        {t.welcomeSubtitle}
+      </h3>
+
+      <div className="space-y-6 pl-2">
+        {/* Section 1: Name */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest border-l-2 border-emerald-500 pl-2">
+            {t.step1Title}
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.firstName} *</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+                  <User className="w-5 h-5" />
+                </span>
+                <input
+                  type="text"
+                  placeholder={t.firstNamePlaceholder}
+                  value={data.firstName || ''}
+                  onChange={(e) => updateData({ firstName: e.target.value })}
+                  className={`w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base ${errors.firstName ? 'border-red-500/50 focus:border-red-400' : ''}`}
+                />
+              </div>
+              {errors.firstName && <p className="text-red-400 text-xs mt-1 font-medium">{errors.firstName}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.lastName} *</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+                  <User className="w-5 h-5" />
+                </span>
+                <input
+                  type="text"
+                  placeholder={t.lastNamePlaceholder}
+                  value={data.lastName || ''}
+                  onChange={(e) => updateData({ lastName: e.target.value })}
+                  className={`w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base ${errors.lastName ? 'border-red-500/50 focus:border-red-400' : ''}`}
+                />
+              </div>
+              {errors.lastName && <p className="text-red-400 text-xs mt-1 font-medium">{errors.lastName}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: Contact */}
+        <div className="space-y-4 pt-2">
+          <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest border-l-2 border-emerald-500 pl-2">
+            {t.step2Title}
+          </h4>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.email} *</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+                  <Mail className="w-5 h-5" />
+                </span>
+                <input
+                  type="email"
+                  placeholder={t.emailPlaceholder}
+                  value={data.email || ''}
+                  onChange={(e) => updateData({ email: e.target.value })}
+                  className={`w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base ${errors.email ? 'border-red-500/50 focus:border-red-400' : ''}`}
+                />
+              </div>
+              {errors.email && <p className="text-red-400 text-xs mt-1 font-medium">{errors.email}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.phone}</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+                    <Phone className="w-5 h-5" />
+                  </span>
+                  <input
+                    type="tel"
+                    placeholder={t.phonePlaceholder}
+                    value={data.phone || ''}
+                    onChange={(e) => updateData({ phone: e.target.value })}
+                    className="w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.mobile} *</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+                    <Phone className="w-5 h-5" />
+                  </span>
+                  <input
+                    type="tel"
+                    placeholder={t.mobilePlaceholder}
+                    value={data.mobile || ''}
+                    onChange={(e) => updateData({ mobile: e.target.value })}
+                    className={`w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base ${errors.mobile ? 'border-red-500/50 focus:border-red-400' : ''}`}
+                  />
+                </div>
+                {errors.mobile && <p className="text-red-400 text-xs mt-1 font-medium">{errors.mobile}</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Appointment */}
+        <div className="space-y-4 pt-2">
+          <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest border-l-2 border-emerald-500 pl-2">
+            {t.step3Title}
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.selectDate}</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 pointer-events-none">
+                  <Calendar className="w-5 h-5" />
+                </span>
+                <input
+                  type="date"
+                  value={data.date || ''}
+                  onChange={(e) => updateData({ date: e.target.value })}
+                  className="w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-zinc-300 tracking-wide">{t.selectTime}</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 pointer-events-none">
+                  <Clock className="w-5 h-5" />
+                </span>
+                <input
+                  type="time"
+                  value={data.time || ''}
+                  onChange={(e) => updateData({ time: e.target.value })}
+                  className="w-full pl-12 pr-4 py-3 rounded-2xl glass-input text-base"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4: Solar Solution */}
+        <div className="space-y-4 pt-2">
+          <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest border-l-2 border-emerald-500 pl-2">
+            {t.step4Title}
+          </h4>
+          <div className="grid grid-cols-1 gap-3">
+            {options.map((opt) => {
+              const selected = data.solution === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => updateData({ solution: opt.id })}
+                  className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 cursor-pointer ${
+                    selected 
+                      ? 'border-emerald-400 bg-emerald-950/20 shadow-md shadow-emerald-500/5'
+                      : 'border-zinc-800 bg-zinc-950/20 hover:border-zinc-700/60'
+                  }`}
+                >
+                  <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    selected ? 'border-emerald-400' : 'border-zinc-600'
+                  }`}>
+                    {selected && <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />}
+                  </div>
+                  <div>
+                    <h4 className={`font-bold text-sm tracking-wide ${selected ? 'text-emerald-300' : 'text-white'}`}>
+                      {opt.label}
+                    </h4>
+                    <p className="text-zinc-400 text-xs mt-1 leading-normal">
+                      {opt.desc}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Submit */}
+        <div className="flex justify-end pt-6 border-t border-zinc-800/60 mt-6">
+          <button
+            onClick={onSubmit}
+            className="py-3.5 px-10 rounded-full font-bold text-[#0d130e] bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 text-base"
+          >
+            <span>{t.submit}</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
