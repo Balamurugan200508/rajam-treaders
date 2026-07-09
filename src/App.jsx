@@ -143,7 +143,7 @@ export default function App() {
         {slide === 4.5 && (
           <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
             <video 
-              src="/Solar_energy_company_hero_video_202607091040.mp4" 
+              src="/solar.mp4" 
               autoPlay 
               muted 
               playsInline
