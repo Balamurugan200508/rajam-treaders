@@ -27,7 +27,7 @@ export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
   
   // Track scroll milestones: 
-  // 0: Welcome, 1: Name unlocked (800px), 2: Contact unlocked (1600px), 3: Appointment unlocked (2400px), 4: Solution unlocked (3200px)
+  // 0: Welcome, 1: Name unlocked (100vh), 2: Contact unlocked (200vh), 3: Appointment unlocked (300vh), 4: Solution unlocked (400vh)
   const [maxUnlockedStep, setMaxUnlockedStep] = useState(0);
 
   const [formData, setFormData] = useState({
@@ -104,14 +104,16 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Track scroll position to advance frames based on absolute 3200px limit
+  // Track scroll position to advance frames based on absolute 4-viewport limit
   useEffect(() => {
     const handleScroll = () => {
       if (slide !== 5) return;
       
       const scrollY = window.scrollY;
-      // scrollProgress goes from 0.0 to 1.0 based on absolute 3200px height
-      const scrollPercent = Math.min(1.0, scrollY / 3200);
+      const maxTrackHeight = 4 * window.innerHeight;
+      
+      // Calculate progress relative to the 4-viewport full track
+      const scrollPercent = Math.min(1.0, scrollY / maxTrackHeight);
       setScrollProgress(scrollPercent);
       
       const frameIndex = Math.min(150, Math.max(1, Math.floor(scrollPercent * 149) + 1));
@@ -166,12 +168,17 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
+  const scrollToPercent = (percent) => {
+    const maxTrackHeight = 4 * window.innerHeight;
+    window.scrollTo({ top: maxTrackHeight * percent, behavior: 'smooth' });
+  };
+
   const handleStartForm = () => {
     setSlide(5);
     setScrollProgress(0);
-    setMaxUnlockedStep(1); // Unlocks Step 1 scroll space (up to 800px)
+    setMaxUnlockedStep(1); // Unlocks Step 1 scroll space (up to 100vh)
     setTimeout(() => {
-      window.scrollTo({ top: 800, behavior: 'smooth' });
+      scrollToPercent(0.25); // Scrolls to 100vh (25% of 400vh)
     }, 100);
   };
 
@@ -185,9 +192,9 @@ export default function App() {
       return;
     }
     setErrors({});
-    setMaxUnlockedStep(2); // Unlocks Step 2 scroll space (up to 1600px)
+    setMaxUnlockedStep(2); // Unlocks Step 2 scroll space (up to 200vh)
     setTimeout(() => {
-      window.scrollTo({ top: 1600, behavior: 'smooth' });
+      scrollToPercent(0.50); // Scrolls to 200vh (50% of 400vh)
     }, 100);
   };
 
@@ -207,16 +214,16 @@ export default function App() {
       return;
     }
     setErrors({});
-    setMaxUnlockedStep(3); // Unlocks Step 3 scroll space (up to 2400px)
+    setMaxUnlockedStep(3); // Unlocks Step 3 scroll space (up to 300vh)
     setTimeout(() => {
-      window.scrollTo({ top: 2400, behavior: 'smooth' });
+      scrollToPercent(0.75); // Scrolls to 300vh (75% of 400vh)
     }, 100);
   };
 
   const handleContinueAppointment = () => {
-    setMaxUnlockedStep(4); // Unlocks Step 4 scroll space (up to 3200px)
+    setMaxUnlockedStep(4); // Unlocks Step 4 scroll space (up to 400vh)
     setTimeout(() => {
-      window.scrollTo({ top: 3200, behavior: 'smooth' });
+      scrollToPercent(1.00); // Scrolls to 400vh (100% of 400vh)
     }, 100);
   };
 
@@ -238,9 +245,9 @@ export default function App() {
       
       const firstErrorField = Object.keys(finalErrors)[0];
       if (firstErrorField === 'firstName' || firstErrorField === 'lastName') {
-        window.scrollTo({ top: 800, behavior: 'smooth' });
+        scrollToPercent(0.25);
       } else {
-        window.scrollTo({ top: 1600, behavior: 'smooth' });
+        scrollToPercent(0.50);
       }
       return;
     }
@@ -338,7 +345,7 @@ export default function App() {
           <div className="fixed inset-0 z-30 flex items-center justify-center px-4 pointer-events-none">
             <div className="relative w-full max-w-md h-full flex items-center justify-center">
               
-              {/* Card 1: Name Section (Visible: 10% - 38%, Peak: 25% [800px]) */}
+              {/* Card 1: Name Section (Visible: 10% - 38%, Peak: 25% [100vh]) */}
               <div style={getCardStyle(0.10, 0.25, 0.38)}>
                 <StepNameSection 
                   data={formData} 
@@ -350,7 +357,7 @@ export default function App() {
                 />
               </div>
               
-              {/* Card 2: Contact Section (Visible: 38% - 62%, Peak: 50% [1600px]) */}
+              {/* Card 2: Contact Section (Visible: 38% - 62%, Peak: 50% [200vh]) */}
               <div style={getCardStyle(0.38, 0.50, 0.62)}>
                 <StepContactSection 
                   data={formData} 
@@ -362,7 +369,7 @@ export default function App() {
                 />
               </div>
               
-              {/* Card 3: Appointment Section (Visible: 62% - 88%, Peak: 75% [2400px]) */}
+              {/* Card 3: Appointment Section (Visible: 62% - 88%, Peak: 0.75 [300vh]) */}
               <div style={getCardStyle(0.62, 0.75, 0.88)}>
                 <StepAppointmentSection 
                   data={formData} 
@@ -373,7 +380,7 @@ export default function App() {
                 />
               </div>
               
-              {/* Card 4: Solution Section (Visible: 88% - 100%, Peak: 1.00 [3200px]) */}
+              {/* Card 4: Solution Section (Visible: 88% - 100%, Peak: 1.00 [400vh]) */}
               <div style={getCardStyle(0.88, 1.00, 1.0)}>
                 <StepSolutionSection 
                   data={formData} 
@@ -391,7 +398,7 @@ export default function App() {
         {/* Dynamic spacer that extends page scroll height ONLY as steps are unlocked */}
         {slide === 5 && (
           <div 
-            style={{ height: `${maxUnlockedStep * 800}px` }} 
+            style={{ height: `${maxUnlockedStep * 100}vh` }} 
             className="w-full pointer-events-none transition-[height] duration-500 ease-out" 
           />
         )}
